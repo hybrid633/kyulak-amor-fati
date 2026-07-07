@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KYULAK · AMOR FATI — 초인의 자기 경영 OS</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.24.0/dist/tabler-icons.min.css" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;}
+  body{background:#0e0e10;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;
+    font-family:'Noto Sans KR',system-ui,-apple-system,sans-serif;padding:24px 14px;}
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);}
+  .kyu{width:100%;max-width:460px;background:#161618;border:1px solid #2a2a2e;border-radius:20px;
+    padding:26px 22px 30px;color:#ededed;}
+  .kyu-title{letter-spacing:.32em;font-size:15px;font-weight:500;color:#f4f4f4;margin:0;text-align:center;}
+  .kyu-sub{letter-spacing:.14em;font-size:11px;color:#7d7d84;margin:4px 0 0;text-align:center;}
+  .kyu-date{display:flex;align-items:center;justify-content:center;gap:8px;margin:10px 0 20px;font-size:11px;color:#6e6e75;letter-spacing:.1em;}
+  .reset{background:none;border:1px solid #333;border-radius:8px;color:#8a8a90;font-size:10.5px;
+    padding:3px 9px;cursor:pointer;font-family:inherit;letter-spacing:.05em;transition:.15s;}
+  .reset:hover{border-color:#E8792B;color:#E8792B;}
+  .vessel{position:relative;width:186px;height:186px;border-radius:50%;overflow:hidden;background:#101012;
+    border:2px solid #2f2f34;margin:0 auto;}
+  .water{position:absolute;left:0;right:0;bottom:0;height:0%;background:#E8792B;transition:height 1s cubic-bezier(.2,.8,.2,1);}
+  .wave{position:absolute;top:-13px;left:0;width:200%;height:15px;animation:wv 3.2s linear infinite;}
+  @keyframes wv{to{transform:translateX(-50%)}}
+  .vtext{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    pointer-events:none;text-shadow:0 1px 6px rgba(0,0,0,.55);}
+  .vpct{font-size:52px;font-weight:500;line-height:1;color:#fff;}
+  .vstage{margin-top:6px;font-size:13px;letter-spacing:.06em;color:#fff;font-weight:500;}
+  .vstage-en{margin-top:2px;font-size:9.5px;letter-spacing:.22em;color:#e9e9e9;}
+  .ring{position:absolute;inset:-4px;border-radius:50%;border:2px solid transparent;}
+  .ring.on{border-color:#E8792B;animation:pulse 1.6s ease-out infinite;}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(232,121,43,.5)}100%{box-shadow:0 0 0 16px rgba(232,121,43,0)}}
+  .phase{background:#1d1d20;border:1px solid #2c2c31;border-radius:14px;padding:14px 16px;margin-top:12px;}
+  .ph-head{display:flex;align-items:center;gap:10px;}
+  .ph-glyph{width:34px;height:34px;border-radius:50%;background:#141416;border:1px solid #34343a;
+    display:flex;align-items:center;justify-content:center;color:#E8792B;font-size:18px;flex:0 0 auto;}
+  .ph-ko{font-size:14px;font-weight:500;color:#f2f2f2;}
+  .ph-time{font-size:10.5px;color:#7d7d84;letter-spacing:.08em;font-weight:400;}
+  .ph-motto{font-size:11px;color:#E8792B;letter-spacing:.05em;}
+  .ph-count{margin-left:auto;font-size:12px;color:#9a9aa0;font-variant-numeric:tabular-nums;}
+  .item{display:flex;align-items:center;gap:11px;padding:9px 4px;cursor:pointer;border-top:1px solid #26262b;}
+  .item:first-of-type{margin-top:8px;}
+  .box{width:19px;height:19px;border-radius:6px;border:1.5px solid #4a4a52;flex:0 0 auto;
+    display:flex;align-items:center;justify-content:center;color:#161618;font-size:12px;transition:.18s;}
+  .item.done .box{background:#E8792B;border-color:#E8792B;}
+  .item .box i{opacity:0;transition:.18s;}
+  .item.done .box i{opacity:1;}
+  .item .txt{font-size:13.5px;color:#d6d6d9;transition:.18s;}
+  .item.done .txt{color:#75757b;text-decoration:line-through;}
+  .kyu-foot{text-align:center;margin-top:18px;font-size:10px;letter-spacing:.28em;color:#5f5f66;}
+</style>
+</head>
+<body>
+<main class="kyu" id="app">
+  <h1 class="sr-only">KYULAK AMOR FATI 시간대별 루틴 체크리스트</h1>
+  <p class="kyu-title">KYULAK · AMOR FATI</p>
+  <p class="kyu-sub">초인의 자기 경영 OS</p>
+  <div class="kyu-date">
+    <span id="today">—</span>
+    <button class="reset" id="reset" type="button">오늘 초기화</button>
+  </div>
+
+  <div style="position:relative;width:186px;margin:0 auto;">
+    <div class="ring" id="ring"></div>
+    <div class="vessel">
+      <div class="water" id="water">
+        <svg class="wave" viewBox="0 0 400 15" preserveAspectRatio="none"><path d="M0 8 Q50 0 100 8 T200 8 T300 8 T400 8 V15 H0 Z" fill="#E8792B"/></svg>
+      </div>
+      <div class="vtext">
+        <span class="vpct" id="pct">0%</span>
+        <span class="vstage" id="stage">낙타</span>
+        <span class="vstage-en" id="stageEn">CARRY THE WEIGHT</span>
+      </div>
+    </div>
+  </div>
+
+  <section class="phase" data-phase="camel">
+    <div class="ph-head">
+      <div class="ph-glyph"><i class="ti ti-wave-sine" aria-hidden="true"></i></div>
+      <div>
+        <div class="ph-ko">낙타 <span class="ph-time">· 아침 05–11</span></div>
+        <div class="ph-motto">견뎌라 · CARRY THE WEIGHT</div>
+      </div>
+      <div class="ph-count" data-count>0/4</div>
+    </div>
+    <div class="item"><span class="box"><i class="ti ti-check"></i></span><span class="txt">기상 직후 물 한 잔 + 5분 호흡 명상</span></div>
+    <div class="item"><span class="box"><i class="ti ti-check"></i></span><span class="txt">오늘의 짐 3가지 기록 (감사·과제)</span></div>
+    <div class="item"><span class="box"><i class="ti ti-check"></i></span><span class="txt">30분 독서 또는 학습</span></div>
+    <div class="item"><span class="box"><i class="ti ti-check"></i></span><span class="txt">몸 깨우기 스트레칭 10분</span></div>
+  </section>
+
+  <section class="phase" data-phase="lion">
+    <div class="ph-head">
+      <div class="ph-glyph"><i class="ti ti-chevron-up" aria-hidden="true"></i></div>
+      <div>
+        <div class="ph-ko">사자 <span class="ph-time">· 낮 12–17</span></div>
+        <div class="ph-motto">거절하라 · CHOOSE YOUR WILL</div>
+      </div>
+      <div class="ph-count" data-count>0/4</div>
+    </div>
+    <div class="item"><span class="box"><i class="ti ti-check"></i></span><span class="txt">가장 중요한 과업 딥워크 90분</span></div>
+    <div class="item"><span class="box"><i class="ti ti-check"></i></span><span class="txt">불필요한 요청·알림 1회 거절하기</span></div>
+    <div class="item"><span class="box"><i class="ti ti-check"></i></span><span class="txt">미루던 결정 1개 즉시 실행</span></div>
+    <div class="item"><span class="box"><i class="ti ti-check"></i></span><span class="txt">점심 후 10분 산책</span></div>
+  </section>
+
+  <section class="phase" data-phase="child">
+    <div class="ph-head">
+      <div class="ph-glyph"><i class="ti ti-circle" aria-hidden="true"></i></div>
+      <div>
+        <div class="ph-ko">어린아이 <span class="ph-time">· 저녁 18–04</span></div>
+        <div class="ph-motto">다시 창조하라 · CREATE AGAIN</div>
+      </div>
+      <div class="ph-count" data-count>0/4</div>
+    </div>
+    <div class="item"><span class="box"><i class="ti ti-check"></i></span><span class="txt">새 아이디어·창작 30분</span></div>
+    <div class="item"><span class="box"><i class="ti ti-check"></i></span><span class="txt">오늘 배운 것 한 줄 기록</span></div>
+    <div class="item"><span class="box"><i class="ti ti-check"></i></span><span class="txt">감사일기 + 내일 계획 3가지</span></div>
+    <div class="item"><span class="box"><i class="ti ti-check"></i></span><span class="txt">디지털 디톡스 후 수면 준비</span></div>
+  </section>
+
+  <div class="kyu-foot">CHOOSE YOUR WILL · BECOME ÜBERMENSCH</div>
+</main>
+
+<script>
+(function(){
+  var KEY='kyulak-amor-fati';
+  var items=[].slice.call(document.querySelectorAll('.item'));
+  var total=items.length;
+  var water=document.getElementById('water'),pct=document.getElementById('pct');
+  var stage=document.getElementById('stage'),stageEn=document.getElementById('stageEn'),ring=document.getElementById('ring');
+
+  function todayKey(){var d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();}
+  function todayLabel(){
+    var d=new Date();var days=['일','월','화','수','목','금','토'];
+    return d.getFullYear()+'. '+(d.getMonth()+1)+'. '+d.getDate()+'  ('+days[d.getDay()]+')';
+  }
+  document.getElementById('today').textContent=todayLabel();
+
+  function stageFor(p){
+    if(p>=100)return['초인 · ÜBERMENSCH','올라섰다'];
+    if(p>=67)return['어린아이','CREATE AGAIN'];
+    if(p>=34)return['사자','CHOOSE YOUR WILL'];
+    return['낙타','CARRY THE WEIGHT'];
+  }
+  function save(){
+    var state=items.map(function(i){return i.classList.contains('done')?1:0;});
+    try{localStorage.setItem(KEY,JSON.stringify({date:todayKey(),state:state}));}catch(e){}
+  }
+  function load(){
+    try{
+      var raw=localStorage.getItem(KEY);if(!raw)return;
+      var data=JSON.parse(raw);
+      if(data.date!==todayKey())return;
+      (data.state||[]).forEach(function(v,i){if(v&&items[i])items[i].classList.add('done');});
+    }catch(e){}
+  }
+  function render(){
+    var done=items.filter(function(i){return i.classList.contains('done');}).length;
+    var p=Math.round(done/total*100);
+    water.style.height=p+'%';pct.textContent=p+'%';
+    var s=stageFor(p);stage.textContent=s[0];stageEn.textContent=s[1];
+    ring.classList.toggle('on',p===100);
+    document.querySelectorAll('.phase').forEach(function(ph){
+      var its=ph.querySelectorAll('.item');
+      var d=ph.querySelectorAll('.item.done').length;
+      ph.querySelector('[data-count]').textContent=d+'/'+its.length;
+    });
+  }
+  items.forEach(function(it){
+    it.addEventListener('click',function(){it.classList.toggle('done');save();render();});
+  });
+  document.getElementById('reset').addEventListener('click',function(){
+    items.forEach(function(i){i.classList.remove('done');});save();render();
+  });
+
+  load();render();
+})();
+</script>
+</body>
+</html>
