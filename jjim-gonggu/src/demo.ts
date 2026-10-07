@@ -96,10 +96,13 @@ function demoRoutes(r: Router) {
   r.post('/demo/api/advance', async (req, res) => {
     const c = activeCampaignForProduct(ctx, MALL, Number(req.body.product_no));
     const to = req.body.to;
-    if (to === 'deadline') { if (!c) throw new UserError('none', '공구가 없어요'); clock.set(new Date(Math.max(clock.now().getTime(), new Date(c.deadline_at).getTime() + 1000))); }
-    else if (to === 'payend') { const cc = c && getCampaign(ctx, c.id); if (!cc?.pay_until) throw new UserError('none', '아직 결제 기간이 아니에요'); clock.set(new Date(new Date(cc.pay_until).getTime() + 1000)); }
-    else clock.advance(Math.min(240, Number(to) || 1) * HOUR);
-    sendJson(res, 200, { now: clock.now().toISOString(), tick: await tick(ctx) });
+    let target: number;
+    if (to === 'deadline') { if (!c) throw new UserError('none', '공구가 없어요'); target = Math.max(clock.now().getTime(), new Date(c.deadline_at).getTime() + 1000); }
+    else if (to === 'payend') { const cc = c && getCampaign(ctx, c.id); if (!cc?.pay_until) throw new UserError('none', '아직 결제 기간이 아니에요'); target = new Date(cc.pay_until).getTime() + 1000; }
+    else target = clock.now().getTime() + Math.min(240, Number(to) || 1) * HOUR;
+    // 시간을 한 번에 건너뛰지 않고 1시간씩 흘려보낸다. 그래야 08시 발송 같은 예약이 실제처럼 실행된다
+    while (clock.now().getTime() < target) { clock.set(new Date(Math.min(target, clock.now().getTime() + HOUR))); await tick(ctx); }
+    sendJson(res, 200, { now: clock.now().toISOString() });
   });
   r.post('/demo/api/simulate-pledges', async (req, res) => {
     const c = activeCampaignForProduct(ctx, MALL, Number(req.body.product_no));
