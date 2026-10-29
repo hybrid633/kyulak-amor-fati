@@ -1,0 +1,327 @@
+AI가 검토하면 믿을 수 있는가: 대규모 언어모델 자기검
+토의 효과와 성립 조건에 관한 문헌 검토
+이규현
+초록
+본 검토는 "AI가 만든 결과물은 AI에게 다시 검토시키면 믿을 수 있다"는 통념을 2022~2026년 발표 41편(동
+료심사 32편)의 본문 수치로 검증했다. 추론 시점에 추가 훈련 없이 같은 모델이 외부 근거 없이 제자리에서 자
+기 출력을 수정하면 정답 검증 가능 과제에서 정확도가 대체로 떨어지고, 긍정 결과의 상당수는 오라클 누출·약
+한 베이스라인·측정 방식의 산물이었다. 같은 모델이 평가자가 되면 자기 선호와 위치 편향이 구조적으로 끼어들
+며 '사람과 n% 일치'는 지표에 민감했다. 반면 실행·테스트·검색·사람 라벨 검증기 같은 모델 밖의 신호나 다른
+분포의 검토자가 더해지면 일관되게 개선되고, 사람의 결합도 결과 피드백과 불일치 이연 설계가 있을 때만 이득
+이었다. 통념은 검토 신호의 출처, 과제 유형, 검토자와 생성자의 유사도에 따라 조건부로만 성립한다.
+제1장 서론
+제1절 배경과 목적
+"AI가 만든 결과물은 AI에게 다시 검토시키면 믿을 수 있다"는 말은 이제 상식처럼 쓰인다. 초안을 쓴 모델에게
+다시 확인하라고 시키고, 글의 채점을 모델에게 맡긴다. 필자는 로컬 AI 연구 비서를 운영하며 모델의 자기 판정
+이 사후 검증에서 세 차례 뒤집히는 경험을 했고, 이것이 개인 사례인지 문헌이 확인한 일반 현상인지가 이 검토
+의 출발점이다. 연구 질문은 다음과 같다. 추론 시점에 추가 훈련 없이, 생성한 모델과 같은 대규모 언어모델이
+자기 출력(추론·코드·서술)을 제자리에서 다시 검토·수정할 때, 검토하지 않은 경우와 비교해 외부 근거 없이도
+정답률(검증 가능 과제)과 사람 평가 일치도(열린 과제)가 올라가는가, 그리고 어떤 외부 신호가 더해질 때 결과
+가 달라지는가. '자기검토'는 생성 모델이 자기 출력을 비평·수정·채점하는 모든 절차, '내재적 자기수정'은 외부
+도구·정답·사람 없이 모델 자신의 피드백만 쓰는 경우, '외부 근거'는 실행 결과·검색·사람 피드백·별도 검증기처
+럼 모델 밖에서 오는 신호를 가리킨다. 제2장은 이 질문을 세 절로 나눠 비교하고, 제3장에서 논의하며, 제4장에
+서 결론을 적는다.
+제2절 검토한 문헌과 방법
+문헌 검색은 2026년 10월 28일 라이너 스콜라(scholar.liner.com)의 학술·웹 검색으로 수행했고, 사람+AI 협
+업 주제는 PubMed를 병행했다(결과 0건). 발행 기간은 2022~2026년, 검색어는 영어다. 절차는 네 단계다.
+첫째, /brainstorm-ideas로 연구 질문 후보 3개를 만들고 채팅으로 문헌으로 답할 수 있는지 확인해 질문을
+'추론 시점·무훈련·동일 모델·제자리 수정'으로 좁혔다. 둘째, /find-related-papers 6회(종설, 지지 결과, 반대
+결과, 평가자 편향, 외부 근거 결합, 사람+AI 메타분석)와 시드 문헌 11편 대조로 비교표 8개(중복 포함 154행)
+를 만들었다. 주요 검색어는 "survey self-correction large language models", "Large Language
+Models are not Fair Evaluators position bias" 등이다. 셋째, 대규모 언어모델의 검토·수정·채점 개입을 '검
+토 없음' 또는 '외부 근거' 조건과 비교한 실증 연구와 이를 종합한 종설·메타분석을 포함하고, 전통 자동평가 지
+표만 다룬 연구, 사람 평가나 정답 기준이 없는 리더보드, 자기검토와 무관한 훈련 기법은 제외해 41편(동료심
+사 32편, 프리프린트 9편)을 선정했다. 넷째, 41편의 본문 표·그림을 스콜라 채팅으로 읽어 수치의 위치를 기록
+했고, 스콜라에 본문 색인이 없던 7편은 arXiv 원문으로, 출판 정보 10건은 웹 검색으로 확인·교정했으며, 본문
+을 확인하지 못한 1편(Eriksson et al., 2026)은 초록 기준으로만 인용했다. 구조화에는 /visualize-topic과
+연구 공백 검증 채팅을, 초안에는 /write-draft와 문서 편집을, 인용 정리와 최종 점검에는 /add-citations와
+/review-document를 썼고, 그림 1은 /generate-figures 초안을 확정 수치로 다시 그려 넣었다. 필자는 연구
+질문 설계, 스콜라 프롬프트 작성, 스콜라 출력의 수치·출판 정보 검증, 초안 교정에 Anthropic의 Claude를 보
+조 도구로 사용했다. 모든 수치는 원문의 표·그림과 대조했으며 판단과 문장의 책임은 필자에게 있다.
+제2장 주제별 분석
+제1절 외부 근거 없는 자기수정은 효과가 있는가
+이 절의 질문은 추론 시점에 추가 훈련 없이, 생성한 모델과 같은 언어모델이 자기 출력을 제자리에서 다시 검토·
+수정할 때 외부 근거 없이도 정답률이 오르는가이다.
+1.1 제자리 수정은 정답 검증 과제에서 대체로 정확도를 떨어뜨린다
+정답을 검증할 수 있는 과제에서 제자리 수정의 순이득은 일관되게 음수다. 내재적 자기수정 후 GPT-3.5는
+GSM8K 75.9→74.7, CommonSenseQA 75.8→38.1로 하락했고, 오라클 라벨을 준 설정에서만
+75.9→84.3으로 올랐다(Huang et al., 2024). GPT-4의 자기 비평도 Game of 24 5%→3% 등 세 과제에
+서 성능을 떨어뜨렸으나 외부 검증기를 붙이면 회복했고(Stechly et al., 2024), 동일 예산에서 코드 자기수리
+의 이득은 미미한 반면 사람 피드백은 성공률을 1.58배 올렸다(Olausson et al., 2024).
+반복해도 회복되지 않는다. 4회 반복 후 7개 모델 중 4개가 하락했고(Liu & Meng, 2026), 34개 모델·1,000
+문항에서 자기 정제 성공률은 최고 31.3%였다(Lee et al., 2026). 정답→오답 전환은 Llama-3.1-8B에서
+58.8%에 이르는데, 원인은 능력 부족보다 수정 프롬프트에 대한 최근성 편향이어서 원 질문을 반복 제시하는
+것만으로 전환이 5.3~10.9%p 줄었다(Zhang et al., 2025).
+1.2 절차를 쪼개거나 후보를 고르면 이득이 나나 '수정'과는 다른 기제
+다
+개선이 보고된 사례의 기제는 오류를 고치는 것이 아니라 검증 절차의 분해와 후보 선택이다. ProCo는 질문의
+핵심 조건을 가린 검증 문제를 스스로 풀어 답을 대조해 GSM8K 87.1(Self-Correct 75.1)을 기록했고(Wu et
+al., 2024), SelfCheck는 풀이 전체를 한 번에 검증하면 무작위 수준(55.0%)이나 단계별 재생성·비교와 저신
+뢰 필터링으로 GSM8K 정답 비율을 67.5→76.5%로 올렸다(Miao et al., 2024). 이득은 옳은 후보를 골라내
+는 선택에서 나오지 오류를 고치는 능력의 증거가 아니다.
+Self-Refine의 5~40%p 개선도 수학에서는 피드백의 94%가 'everything looks good'이었고(Madaan et
+al., 2023), SelfCheckGPT의 환각 검지(Pearson 78.32)는 찾음이지 고침이 아니다(Manakul et al.,
+2023). 다만 계획 과제에서 내재적 자기 비평만으로 Blocksworld 49.8→85.5%를 보고한 연구(Bohnet et
+al., 2025)는 Stechly et al.(2024)과 정면 충돌하며, 차이 후보인 PDDL 도메인 정의 명시의 인과 역할은 추
+가 확인이 필요하다.
+1.3 부정 결과의 상당 부분은 측정과 프로토콜의 산물이다
+부정 결과도 평가 설계에 민감하다. 오류 탐지 정확도는 최고 모델도 52.87%였으나 오류 위치를 알려주면 틀
+린 추적의 교정 정확도가 +18.04~+43.92%p 올랐다(Tyen et al., 2024). 같은 오류를 외부 입력으로 바꿔
+주입하면 맹점이 평균 64.5%였고 'Wait' 한 단어로 89.3% 줄었으며(Tsui, 2025), 오류의 역할 라벨만 바꿔
+도 교정률이 +23.3~+93.3%p 움직였다(Chen et al., 2026). 무조건 수정은 GSM8K +25.5%p에도 회복
+률 35.0%와 악화율 19.1%가 공존했다(Zhang, 2026).
+긍정 결과도 프로토콜을 의심하게 한다. RCI·Reflexion의 오라클 정보 사용과 Self-Refine의 약한 초기 프롬프
+트 비교(Kamoi et al., 2024; Huang et al., 2024), 오라클 보상으로 훈련한 SCoRe(Kumar et al., 2025)
+는 모두 이 절의 조건 밖이다.
+소결하면, 외부 근거 없는 제자리 자기수정이 정답률을 올린다는 통념은 이 조건에서 성립하지 않는다. 다만 실
+패의 한 원인이 오류를 찾는 능력에 있다는 점은 2절의 평가자 신뢰성과 3절의 외부 신호 결합 논의로 이어진다.
+제2절 AI는 공정한 평가자인가 — 검토자가 자기 자신일 때
+이 절의 질문은 생성한 모델과 같은 언어모델이 평가자가 될 때 그 판정이 사람 평가와 얼마나 일치하며 어떤 편
+향이 끼어드는가이다.
+2.1 '사람과 80% 일치'는 지표와 과제 난이도에 따라 달라진다
+높은 일치율은 지표와 비교 쌍의 난이도가 만든다. GPT-4와 전문가의 일치는 동점을 제외하면 85%로 사람끼
+리의 81%를 넘지만, 두 모델의 성능 차가 클수록 일치가 70%에서 거의 100%로 올라가 쉬운 비교에서만 높았
+다(Zheng et al., 2023). 같은 데이터를 정확도와 κ로 다시 재면 GPT-4 52.7%(κ 0.24)·ChatGPT 44.4%
+(κ 0.06)로 사람 평균 71.7%(κ 0.54)에 못 미쳤고(Wang et al., 2024), 21개 판정자에서 정확일치와 κ의 격
+차가 33.8~41.3%p에 달해 재검사 신뢰도가 높아도 타당하지 않은 판정이 공존했다(Norman et al., 2026).
+과제 영역에서도 갈린다. 스토리·광고에서는 사람과 유의한 양의 Kendall τ가 나왔고(Chiang & Lee, 2023),
+요약에서 G-Eval은 ρ 0.514로 앞섰으나 사람이 사람 요약을 선호할 때도 GPT-3.5 요약에 더 높은 점수를 주
+었으며(Liu et al., 2023), 20개 데이터셋에서는 GPT-4o도 대부분 사람 상한을 밑돌고 독성·안전에서는 음수
+상관을 보였다(Bavaresco et al., 2025).
+2.2 위치·장황·자기 선호 편향은 구조적이며 보정 가능성은 유형별로
+갈린다
+판정 뒤집힘은 구조적이다. 답의 순서만 바꿔도 판정이 뒤집히는 충돌률이 GPT-4 46.3%, ChatGPT 82.5%
+에 이르렀고(Wang et al., 2024), 위치 일관성은 23.8~65.0%에 그쳤으며 장황 공격에는 GPT-4만 버텐다
+(Zheng et al., 2023). 15개 모델에서 사람–기계 순위 일치(RBO 0.44)는 사람–사람(0.54)보다 낮았고 최대
+규모 모델들은 자기 응답을 50% 넘게 선호했다(Koo et al., 2024).
+자기 선호는 과제 조건에 따라 갈린다. GPT-4는 자기 출력을 73.5%로 식별했고 자기 인식을 미세조정하면 자
+기 선호와의 상관이 τ 0.41→0.74로 함께 올랐으며(Panickssery et al., 2024), Self-Refine을 반복할수록
+자기 평가와 실제 품질의 괴리가 커져 사람 기준 편향도 19.6→21.9로 늘었다(Xu et al., 2024). 반면 10개 모
+델의 '보안 질문' 테스트에서는 일반적 자기 인식 증거가 없었고 '최고 답' 전역 선호가 지배했는데, 저자들은 과
+제 조건 차이를 원인으로 지목한다(Davidson et al., 2024). 위치 편향은 다중증거·균형 위치 보정으로 GPT-
+4 62.5%(κ 0.37)까지 오르고 사람이 20%만 개입하면 73.8%로 사람 평균에 도달했으나(Wang et al.,
+2024), 자기 선호는 자기 인식과 함께 움직여 절차 보정의 대상이 아니며 외부 피드백을 줄 때만 줄었다(Xu et
+al., 2024).
+2.3 검토자를 다른 분포의 모델로 바꾸면 완화된다
+편향의 핵심 변수는 검토자와 생성자의 유사도다. 37개 모델·9개 벤치마크에서 검증 이득은 자기 검증에서 가
+장 작고 교차 패밀리 검증에서 가장 컸으며, 풀이자–검증자 유사도가 오르면 오답 수용률이 올랐다(Lu et al.,
+2025). GPT-3.5가 GPT-4의 답을 검토할 때가 GPT-4의 자기검토보다 나았다는 결과도 같은 방향이다
+(Miao et al., 2024). 사람의 일부 개입과 외부 피드백이 편향을 줄였다는 증거(Wang et al., 2024; Xu et
+al., 2024)까지, 완화는 모두 검토 신호를 자기 밖으로 옮기는 데서 나온다. 다만 교차 검증의 이득이 검증 가능
+과제에서 컸다는 점을 열린 과제로 일반화하는 것은 추가 확인이 필요하다(Lu et al., 2025).
+소결하면, 평가자가 생성자 자신일 때 '사람과 n% 일치'라는 수치만으로 평가의 신뢰를 주장할 수 없다. 완화책
+이 모두 검토자를 자기 밖으로 옮기는 것이라는 점이 3절의 외부 신호·사람 결합 논의로 이어진다.
+제3절 외부 신호와 사람이 더해지면 무엇이 달라지는가
+이 절은 같은 모델의 검토에 실행 결과·테스트·검색·도구, 사람 라벨 검증기, 다른 모델, 사람 검토가 더해질 때 무
+엇이 달라지는지, 그리고 사람이 더해지면 자동으로 나아지는지를 묻는다.
+3.1 실행·테스트·검색·도구가 붙으면 같은 모델의 검토도 일관되게 개
+선된다
+개선을 만드는 것은 검토 절차가 아니라 실행 가능한 근거다. 도구를 빼자 자기 비평의 효과는 QA F1
+−0.03~+2.33에 그쳤으나, 검색·인터프리터 결합으로 QA F1 +7.7, TabMWP +32.3, 독성 최대값
+0.353→0.171을 보였다(Gou et al., 2024). 단위 테스트를 빼면 52%로 기준 60%보다 낮아 테스트 없는 자
+기 성찰이 오히려 유해했으나, 테스트를 갖추면 HumanEval pass@1 91%로 GPT-4의 80%를 넘었다
+(Shinn et al., 2023). 실행 피드백 없는 코드 설명은 +2~3%에 머물렀으나 실행 결과는 TransCoder
++12%, MBPP +8%를 가져왔고(Chen et al., 2024), 소형 모델에서도 자기 불확실성 신호로 재생성하면 6
+개 설정 중 5개가 하락한 반면 실행 검증 재생성은 +6.45~+25.81%p였다(Rakasi et al., 2026). 다만
+MBPP의 내부 테스트 위양성 16.3%(Shinn et al., 2023)처럼 신호의 질이 개선의 상한을 정하기도 한다.
+3.2 사람 라벨 검증기와 다른 모델은 효과가 있으나 신호의 질이 상한
+을 정한다
+사람 라벨 검증기는 자기검토를 넘어서지만 상한은 신호의 질이 정한다. 사람이 단계별로 라벨한 80만 건으로
+훈련한 과정 보상 모델은 모든 샘플 수에서 결과 보상 모델과 다수결을 능가했고(대표 부분집합 78.2%;
+Lightman et al., 2024), 사람 비평으로 훈련한 CriticGPT는 사람 비평보다 63% 선호되고 사람+모델 팀은
+사람 단독보다 포괄적이고 모델 단독보다 환각이 적었으나 경쟁 프로그래밍의 정오 판별에는 유의한 도움이 없
+었다(McAleese et al., 2024). 같은 모델 인스턴스들의 토론은 단일 응답·자기 성찰·다수결을 능가하나 4라운
+드 이상 정체되고 수렴이 정답을 보장하지 않으며(Du et al., 2024), 정보 비대칭 설정에서 토론을 본 심판은
+LLM 76%, 사람 88%로 토론 없음(48%·60%)을 앞섰으나 정보가 대칭인 과제에서는 0-shot·CoT보다 낮았
+다(Khan et al., 2024). 교차 검토의 우위도 같은 맥락이다(Miao et al., 2024; Lu et al., 2025).
+3.3 사람이 더해지는 것도 자동으로 낫지 않다 — 결과 피드백·역할 분
+담·오류 비상관이 조건이다
+사람이 더해지는 것 자체는 개선을 보장하지 않는다. 106개 실험의 메타분석에서 사람+AI 조합은 사람·AI 중 나
+은 쪽보다 Hedges' g = −0.23으로 뒤졌고, 결정 과제(−0.27)가 생성 과제(0.19)보다 불리했으며, 사람이 AI
+보다 나을 때는 g = 0.46, 반대일 때는 −0.54로 갈렸다(Vaccaro et al., 2024). 같은 연구들을 재코딩하면 결
+과 피드백이 있는 연구는 14%뿐이었고, 설명만 제공하면 g = −0.31, 피드백과 설명을 함께 주면 g = 0.30이었
+다(Berger et al., 2026). 불일치를 사람에게 이연하는 분담에서는 사람+AI 정확도가 PRISMA 89~96%,
+AMSTAR 91~95%로 사람 단독 89%와 같거나 높았으나, PRECIS-2에서는 이연율이 71~76%에 달해 분담
+이 작동하지 않았다(Woelfle et al., 2024). 사람과 LLM의 오류가 상관되지 않을 때 둘을 섞은 집계가 더 낫다
+는 근거도 초록으로만 확인되었고(Eriksson et al., 2026), AI 제안을 정정하는 데 노력이 들수록 정정은 줄어
+개념 오류 정정률은 31%에 그쳤다(Beck et al., 2026). 개선의 조건은 사람의 존재가 아니라 결과 피드백·역
+할 분담·오류 비상관이다.
+소결하면, 모델 밖 신호는 검토를 일관되게 믿을 만하게 만들지만, 테스트 위양성이나 대칭 토론처럼 신호의 질
+이 상한을 정한다. 사람 결합도 결과 피드백·불일치의 이연·오류 비상관 같은 설계가 성립할 때 개선되며, 이 조
+건들이 3장 논의의 출발점이다.
+제3장 논의
+3.1 세 절을 관통하는 답 — 결과를 가르는 것은 검토의 횟수가 아니라
+신호의 출처다
+같은 모델의 내재적 자기수정은 정답을 검증할 수 있는 과제에서 대체로 정확도를 떨어뜨리거나 맞던 답을 망가
+뜨리고(Huang et al., 2024; Zhang, 2026), 평가자가 될 때는 자기 선호와 위치 편향이 구조적으로 끼어들
+며 '사람과 n% 일치'는 지표에 민감하다(Panickssery et al., 2024; Norman et al., 2026). 반면 실행·테스
+트·검색·도구, 사람 라벨 검증기, 다른 분포의 검토자가 더해지면 같은 실험 안의 직접 대비에서 일관되게 개선된
+다(Gou et al., 2024; Lightman et al., 2024; Lu et al., 2025). 그림 1이 보여주듯 결과를 가르는 조건은 검
+토 신호의 출처(자기 자신→다른 모델→실행·도구→사람), 과제 유형(검증 가능 과제에서는 방향이 뚜렷하고 열
+린 과제에서는 조건부), 검토자와 생성자의 유사도 세 가지이며, 통념은 따라서 조건부로만 성립한다.
+그림 1. 검토 신호의 출처와 과제 유형에 따른 AI 자기검토의 효과. 41편의 본문 확인 수치로 구성한 4×2 조건
+행렬(초록 개선, 빨강 악화·무효, 노랑 조건부).
+3.2 엇갈리는 증거는 능력의 문제이기보다 측정·프로토콜·과제 조건
+의 문제다
+엇갈림은 능력이 아니라 조건에서 온다. 계획 과제에서 Bohnet et al.(2025)의 49.8→85.5%와 Stechly et
+al.(2024)의 5%→3%가 정면 충돌하고, 자기 인식에서 Panickssery et al.(2024)과 Davidson et al.
+(2024)이 충돌하며, Self-Refine은 선호 과제에서 개선·수학에서 무효다(Madaan et al., 2023). 원인은 세
+겹이다. 측정에서 집계 정확도는 회복과 악화를 섞고(Zhang, 2026), 정확일치는 κ보다 33.8~41.3%p 부풀려
+진다(Norman et al., 2026). 프로토콜에서는 오라클 누출과 약한 베이스라인(Kamoi et al., 2024; Huang
+et al., 2024), 역할 라벨과 'Wait' 한 단어가 교정률을 뒤바꾼다(Chen et al., 2026; Tsui, 2025). 과제 조건
+에서는 PDDL 도메인 정의 명시 여부와 과제 다양성이 갈림을 만든다. 부정 결과의 상당 부분이 측정의 산물이
+라면 통념을 반박하는 대신 성립 조건을 적는 것이 정직한 답이며, 오류를 찾는 능력(최고 모델도 52.87%)이 병
+목이고 찾기를 외부에서 도우면 고치기는 된다는 점(Tyen et al., 2024)이 세 절을 잇는 기제다.
+3.3 근거의 질과 이 검토의 한계
+검토한 41편 중 동료심사본은 32편, 프리프린트는 9편(2024~2026)이고, 본문을 확인한 논문은 40편, 초록
+만 확인한 논문은 1편(Eriksson et al., 2026)이다. 대규모 감사 연구조차 내부 수치가 어긋나 Norman et al.
+(2026)은 κ 디플레이션과 판정자 수를 본문과 표에서 다르게 적고 Rakasi et al.(2026)은 모델 목록이 절마
+다 다르므로, 이 검토는 수치를 표 단위로 확인했고 초록과 본문이 다를 때 본문을 택했다. 한계는 네 가지다. 효
+과량을 통합한 메타분석이 이 분야에 없어 정량 종합 대신 서술적 종합에 머문다(Vaccaro et al., 2024의 설계
+가 자기수정·평가자 신뢰성에는 없음). 검색은 영어·2022~2026 중심이라 한국어 연구와 긴 실무 문서 연구는
+거의 빠졌다. 벤치마크 오염과 모델 버전 변동으로 수치는 시점 의존적이다(Zhang et al., 2025). 열린 생성 과
+제에 오라클 없는 공정 평가 프로토콜이 없어(Lee et al., 2026도 체크리스트라는 외부 신호를 평가에 씀) 사
+람 일치도 축의 증거는 정답률 축보다 얇다.
+제4장 결론
+통념 "AI가 만든 결과물은 AI에게 다시 검토시키면 믿을 수 있다"는 조건부로만 성립한다. 같은 모델이 외부 근
+거 없이 제자리에서 다시 보는 검토는 정답을 검증할 수 있는 과제에서 대체로 믿을 수 없고, 같은 모델이 평가자
+가 되면 자기 선호와 위치 편향이 끼어들어 '사람과 n% 일치'만으로 신뢰를 주장할 수 없다. 반면 실행 결과·테스
+트·검색·사람 라벨 검증기처럼 모델 밖의 신호에 접지되거나 생성자와 다른 분포의 검토자를 쓸 때 검토는 일관
+되게 믿을 만해진다. 최종 확인의 책임은 사람에게 남지만, 사람의 검토 역시 결과 피드백과 불일치 이연 같은 설
+계가 있을 때만 작동한다. 필자는 같은 AI라도 두 번 보면 한 번보다 낫다고 믿고 시작했으나, 문헌을 확인한 뒤
+문제가 프롬프트가 아니라 신호의 출처임을 알게 되었다. 자기 피드백은 자기 믿음을 증폭하고, 오류를 찾는 능
+력이 병목이며, 찾기를 밖에서 도우면 고치기는 된다. 앞으로 필요한 연구는 열린 생성 과제에서 오라클 없이 자
+기검토를 공정하게 평가하는 합의된 프로토콜, 피드백 출처·검토자 동일성·과제 유형을 조절변수로 둔 효과량 메
+타분석, 긴 실무 문서와 한국어 환경의 자기검토 연구, 모델 버전에 따른 자기수정 능력의 종단 추적과 비용 대
+비 이득의 체계화다.
+참고문헌
+Bavaresco, A., Bernardi, R., Bertolazzi, L., Elliott, D., Fernández, R., Gatt, A., Ghaleb, E.,
+Giulianelli, M., Hanna, M., Koller, A., Martins, A. F. T., Mondorf, P., Neplenbroek, V., Pezzelle, S.,
+Plank, B., Schlangen, D., Suglia, A., Surikuchi, A. K., Takmaz, E., & Testoni, A. (2025). LLMs
+instead of Human Judges? A Large Scale Empirical Study across 20 NLP Evaluation Tasks. In
+Proceedings of the 63rd Annual Meeting of the Association for Computational Linguistics (ACL
+2025). arXiv:2406.18403.
+Beck, J., Eckman, S., Kern, C., & Kreuter, F. (2026). Bias in the Loop: How Humans Evaluate AI-
+Generated Suggestions. Harvard Data Science Review, 8(2).
+https://doi.org/10.1162/99608f92.0e98898d
+Berger, J., Burton, J. W., Hertwig, R., Kosch, T., Kurvers, R. H. J. M., Kurzenberger, B., Lazik, C.,
+Onnasch, L., Rieger, T., Thoma, A. I., Wulff, D. U., & Herzog, S. M. (2026). Human learning is an
+understudied but promising lever for boosting human–AI synergy. Proceedings of the National
+Academy of Sciences, 123(39), e2536100123. https://doi.org/10.1073/pnas.2536100123
+Bohnet, B., Kamienny, P.-A., Sedghi, H., Gorur, D., Awasthi, P., Parisi, A., Swersky, K., Liu, R.,
+Nova, A., & Fiedel, N. (2025). Enhancing LLM Planning Capabilities through Intrinsic Self-
+Critique. arXiv:2512.24103 (프리프린트).
+Chen, K.-Y., Su, F.-Y., & Chiang, J.-H. (2026). The Self-Correction Illusion: LLMs Correct Others
+but Not Themselves. arXiv:2606.05976 (프리프린트).
+Chen, X., Lin, M., Schärli, N., & Zhou, D. (2024). Teaching Large Language Models to Self-
+Debug. In Proceedings of the 12th International Conference on Learning Representations (ICLR
+2024). arXiv:2304.05128.
+Chiang, C.-H., & Lee, H.-y. (2023). Can Large Language Models Be an Alternative to Human
+Evaluations? In Proceedings of the 61st Annual Meeting of the Association for Computational
+Linguistics (ACL 2023). arXiv:2305.14716.
+Davidson, T. R., Surkov, V., Veselovsky, V., Russo, G. M., & West, R. (2024). Self-Recognition in
+Language Models. In Findings of the Association for Computational Linguistics: EMNLP 2024.
+arXiv:2407.06946.
+Du, Y., Li, S., Torralba, A., Tenenbaum, J. B., & Mordatch, I. (2024). Improving Factuality and
+Reasoning in Language Models through Multiagent Debate. In Proceedings of the 41st
+International Conference on Machine Learning (ICML 2024). arXiv:2305.14325.
+Eriksson, K., Karlsson, S., Vartanova, I., & Strimling, P. (2026). Large language models
+outperform humans at estimating society's everyday norms. Communications AI & Computing,
+1, 15. https://doi.org/10.1038/s44488-026-00018-8
+Gou, Z., Shao, Z., Gong, Y., Shen, Y., Yang, Y., Duan, N., & Chen, W. (2024). CRITIC: Large
+Language Models Can Self-Correct with Tool-Interactive Critiquing. In Proceedings of the 12th
+International Conference on Learning Representations (ICLR 2024). arXiv:2305.11738.
+Huang, J., Chen, X., Mishra, S., Zheng, H. S., Yu, A. W., Song, X., & Zhou, D. (2024). Large
+Language Models Cannot Self-Correct Reasoning Yet. In Proceedings of the 12th International
+Conference on Learning Representations (ICLR 2024). arXiv:2310.01798.
+Kamoi, R., Zhang, Y., Zhang, N., Han, J., & Zhang, R. (2024). When Can LLMs Actually Correct
+Their Own Mistakes? A Critical Survey of Self-Correction of LLMs. Transactions of the
+Association for Computational Linguistics, 12, 1417–1440. https://doi.org/10.1162/tacl_a_00713
+Khan, A., Hughes, J., Valentine, D., Ruis, L., Sachan, K., Radhakrishnan, A., Grefenstette, E.,
+Bowman, S. R., Rocktäschel, T., & Perez, E. (2024). Debating with More Persuasive LLMs Leads
+to More Truthful Answers. In Proceedings of the 41st International Conference on Machine
+Learning (ICML 2024). arXiv:2406.11770.
+Koo, R., Lee, M., Raheja, V., Park, J. I., Kim, Z. M., & Kang, D. (2024). Benchmarking Cognitive
+Biases in Large Language Models as Evaluators. In Findings of the Association for
+Computational Linguistics: ACL 2024. arXiv:2309.17012.
+Kumar, A., Zhuang, V., Agarwal, R., Su, Y., Co-Reyes, J. D., Singh, A., Baumli, K., Iqbal, S., Bishop,
+C., Roelofs, R., Zhang, L. M., McKinney, K., Shrivastava, D., Paduraru, C., Tucker, G., Precup, D.,
+Behbahani, F., & Faust, A. (2025). Training Language Models to Self-Correct via Reinforcement
+Learning. In Proceedings of the 13th International Conference on Learning Representations
+(ICLR 2025). arXiv:2409.12917.
+Lee, Y.-J., Kim, S., Lee, B.-K., Moon, M., & Hwang, Y. (2026). RefineBench: Evaluating
+Refinement Capability of Language Models via Checklists. In Proceedings of the 14th
+International Conference on Learning Representations (ICLR 2026). arXiv:2511.22173.
+Lightman, H., Kosaraju, V., Burda, Y., Edwards, H., Baker, B., Lee, T., Leike, J., Schulman, J.,
+Sutskever, I., & Cobbe, K. (2024). Let's Verify Step by Step. In Proceedings of the 12th
+International Conference on Learning Representations (ICLR 2024). arXiv:2305.20050.
+Liu, A., & Meng, J. (2026). Self-Correction as Feedback Control: Error Dynamics, Stability
+Thresholds, and Prompt Interventions in LLMs. arXiv:2604.22273 (프리프린트).
+Liu, Y., Iter, D., Xu, Y., Wang, S., Xu, R., & Zhu, C. (2023). G-Eval: NLG Evaluation using GPT-4
+with Better Human Alignment. In Proceedings of the 2023 Conference on Empirical Methods in
+Natural Language Processing (EMNLP 2023). arXiv:2303.16634.
+Lu, J., Teehan, R., Jin, J., & Ren, M. (2025). When Does Verification Pay Off? A Closer Look at
+LLMs as Solution Verifiers. arXiv:2512.02304 (프리프린트).
+Madaan, A., Tandon, N., Gupta, P., Hallinan, S., Gao, L., Wiegreffe, S., Alon, U., Dziri, N.,
+Prabhumoye, S., Yang, Y., Gupta, S., Majumder, B. P., Hermann, K., Welleck, S., Yazdanbakhsh,
+A., & Clark, P. (2023). Self-Refine: Iterative Refinement with Self-Feedback. In Advances in
+Neural Information Processing Systems 36 (NeurIPS 2023). arXiv:2303.17651.
+Manakul, P., Liusie, A., & Gales, M. J. F. (2023). SelfCheckGPT: Zero-Resource Black-Box
+Hallucination Detection for Generative Large Language Models. In Proceedings of the 2023
+Conference on Empirical Methods in Natural Language Processing (EMNLP 2023).
+arXiv:2303.08896.
+McAleese, N., Pokorny, R. M., Ceron Uribe, J. F., Nitishinskaya, E., Trebacz, M., & Leike, J.
+(2024). LLM Critics Help Catch LLM Bugs. arXiv:2407.00215 (프리프린트, OpenAI).
+Miao, N., Teh, Y. W., & Rainforth, T. (2024). SelfCheck: Using LLMs to Zero-Shot Check Their
+Own Step-by-Step Reasoning. In Proceedings of the 12th International Conference on Learning
+Representations (ICLR 2024). arXiv:2308.00436.
+Norman, J. D., Rivera, M. U., & Hughes, D. A. (2026). Reliability without Validity: A Systematic,
+Large-Scale Evaluation of LLM-as-a-Judge Models Across Agreement, Consistency, and Bias.
+arXiv:2606.19544 (프리프린트).
+Olausson, T. X., Inala, J. P., Wang, C., Gao, J., & Solar-Lezama, A. (2024). Is Self-Repair a Silver
+Bullet for Code Generation? In Proceedings of the 12th International Conference on Learning
+Representations (ICLR 2024). arXiv:2306.09896.
+Panickssery, A., Bowman, S. R., & Feng, S. (2024). LLM Evaluators Recognize and Favor Their
+Own Generations. In Advances in Neural Information Processing Systems 37 (NeurIPS 2024).
+arXiv:2404.13076.
+Rakasi, P., Lalwani, M., Srivastava, A., Palanivel, A., Adeleke, T., Li, R., & Wu, S. (2026). When
+Uncertainty Isn't Enough: An Empirical Study of Self-Correction in Code Generation.
+arXiv:2608.14659 (프리프린트).
+Shinn, N., Cassano, F., Berman, E., Gopinath, A., Karthik, N., & Yao, S. (2023). Reflexion:
+Language Agents with Verbal Reinforcement Learning. In Advances in Neural Information
+Processing Systems 36 (NeurIPS 2023). arXiv:2303.11366.
+Stechly, K., Valmeekam, K., & Kambhampati, S. (2024). On the Self-Verification Limitations of
+Large Language Models on Reasoning and Planning Tasks. In Proceedings of the 12th
+International Conference on Learning Representations (ICLR 2024). arXiv:2402.08115.
+Tsui, K.-T. (2025). Self-Correction Bench: Uncovering and Addressing the Self-Correction Blind
+Spot in Large Language Models. arXiv:2507.02778 (프리프린트).
+Tyen, G., Mansoor, H., Cărbune, V., Chen, P., & Mak, T. (2024). LLMs cannot find reasoning
+errors, but can correct them given the error location. In Findings of the Association for
+Computational Linguistics: ACL 2024. https://doi.org/10.18653/v1/2024.findings-acl.826
+Vaccaro, M., Almaatouq, A., & Malone, T. (2024). When combinations of humans and AI are
+useful: A systematic review and meta-analysis. Nature Human Behaviour, 8(12), 2293–2303.
+https://doi.org/10.1038/s41562-024-02024-1
+Wang, P., Li, L., Chen, L., Cai, Z., Zhu, D., Lin, B., Cao, Y., Kong, L., Liu, Q., Liu, T., & Sui, Z.
+(2024). Large Language Models are not Fair Evaluators. In Proceedings of the 62nd Annual
+Meeting of the Association for Computational Linguistics (ACL 2024).
+https://doi.org/10.18653/v1/2024.acl-long.511
+Woelfle, T., Hirt, J., Janiaud, P., Kappos, L., Ioannidis, J. P. A., & Hemkens, L. G. (2024).
+Benchmarking Human-AI Collaboration for Common Evidence Appraisal Tools. Journal of
+Clinical Epidemiology, 175, 111533. https://doi.org/10.1016/j.jclinepi.2024.111533
+Wu, Z., Zeng, Q., Zhang, Z., Tan, Z., & Shen, C. (2024). Large Language Models Can Self-
+Correct with Key Condition Verification. In Proceedings of the 2024 Conference on Empirical
+Methods in Natural Language Processing (EMNLP 2024).
+https://doi.org/10.18653/v1/2024.emnlp-main.714
+Xu, W., Zhu, G., Zhao, X., Pan, L., & Li, L. (2024). Pride and Prejudice: LLM Amplifies Self-Bias in
+Self-Refinement. In Proceedings of the 62nd Annual Meeting of the Association for
+Computational Linguistics (ACL 2024). https://doi.org/10.18653/v1/2024.acl-long.826
+Zhang, Q., Wang, D., Qian, H., Li, Y., & Zhang, T. (2025). Understanding the Dark Side of LLMs'
+Intrinsic Self-Correction. In Proceedings of the 63rd Annual Meeting of the Association for
+Computational Linguistics (ACL 2025). arXiv:2412.14959.
+Zhang, T. (2026). When Should LLMs Trust Their Own Revisions? A Risk-Aware Study of
+Intrinsic Self-Correction. arXiv:2609.35832 (프리프린트).
+Zheng, L., Chiang, W.-L., Sheng, Y., Zhuang, S., Wu, Z., Zhuang, Y., Lin, Z., Li, Z., Li, D., Xing, E.
+P., Zhang, H., Gonzalez, J. E., & Stoica, I. (2023). Judging LLM-as-a-Judge with MT-Bench and
+Chatbot Arena. In Advances in Neural Information Processing Systems 36 (NeurIPS 2023).
+arXiv:2306.05685.
+
